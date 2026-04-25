@@ -1,0 +1,8 @@
+openai-whisper
+torch
+torchaudio
+TTS
+ollama
+fastapi
+uvicorn[standard]
+python-multipart

@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"/>
+  <meta name="theme-color" content="#0a0a0f"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <title>Darija → Français</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --bg2: #111118;
+      --bg3: #18181f;
+      --border: rgba(255,255,255,0.08);
+      --border2: rgba(255,255,255,0.14);
+      --text: #f0f0f5;
+      --muted: rgba(240,240,245,0.45);
+      --accent: #e8613a;
+      --accent2: #f0884a;
+      --green: #3ecf8e;
+      --blue: #4da6ff;
+      --font-display: 'Syne', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --r: 16px;
+      --r-sm: 10px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    html, body { height: 100%; background: var(--bg); color: var(--text); font-family: var(--font-body); overflow-x: hidden; }
+    
+    /* ── App shell ── */
+    .app { display: flex; flex-direction: column; min-height: 100dvh; max-width: 480px; margin: 0 auto; }
+    
+    /* ── Header ── */
+    .header {
+      padding: 52px 20px 20px;
+      background: linear-gradient(180deg, rgba(232,97,58,0.12) 0%, transparent 100%);
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .header-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+    .logo { font-family: var(--font-display); font-size: 22px; font-weight: 800; letter-spacing: -0.02em; }
+    .logo span { color: var(--accent); }
+    .live-badge {
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(62,207,142,0.12); border: 0.5px solid rgba(62,207,142,0.3);
+      border-radius: 20px; padding: 4px 10px; font-size: 11px; font-weight: 500; color: var(--green);
+    }
+    .live-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: blink 1.4s ease infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+    .tagline { font-size: 13px; color: var(--muted); font-weight: 300; }
+    
+    /* ── Pipeline chips ── */
+    .pipeline {
+      display: flex; align-items: center; gap: 6px;
+      padding: 12px 20px; overflow-x: auto; scrollbar-width: none;
+      border-bottom: 0.5px solid var(--border);
+      flex-shrink: 0;
+    }
+    .pipeline::-webkit-scrollbar { display: none; }
+    .chip {
+      display: flex; align-items: center; gap: 5px; white-space: nowrap;
+      background: var(--bg3); border: 0.5px solid var(--border2);
+      border-radius: 20px; padding: 5px 10px; font-size: 11px; color: var(--muted);
+      font-family: var(--font-display); font-weight: 500;
+    }
+    .chip.active { color: var(--accent2); border-color: rgba(240,136,74,0.3); background: rgba(240,136,74,0.07); }
+    .chip-dot { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+    .pipe-arrow { color: var(--border2); font-size: 10px; flex-shrink: 0; }
+    
+    /* ── Main scroll area ── */
+    .main { flex: 1; overflow-y: auto; padding: 16px 16px 0; display: flex; flex-direction: column; gap: 12px; }
+    
+    /* ── Cards ── */
+    .card {
+      background: var(--bg2); border: 0.5px solid var(--border);
+      border-radius: var(--r); padding: 16px; position: relative; overflow: hidden;
+    }
+    .card-label {
+      font-size: 10px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 10px; font-family: var(--font-display);
+    }
+    
+    /* ── Mic section ── */
+    .mic-card {
+      background: var(--bg2); border: 0.5px solid var(--border);
+      border-radius: var(--r); padding: 24px 16px;
+      display: flex; flex-direction: column; align-items: center; gap: 16px;
+    }
+    .mic-ring {
+      position: relative; width: 88px; height: 88px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .mic-ring-svg { position: absolute; inset: 0; }
+    .mic-ring-track { fill: none; stroke: var(--border2); stroke-width: 1.5; }
+    .mic-ring-progress {
+      fill: none; stroke: var(--accent); stroke-width: 1.5;
+      stroke-linecap: round; stroke-dasharray: 251; stroke-dashoffset: 251;
+      transform: rotate(-90deg); transform-origin: 50% 50%;
+      transition: stroke-dashoffset 0.3s;
+    }
+    .mic-btn {
+      width: 64px; height: 64px; border-radius: 50%;
+      background: var(--bg3); border: 0.5px solid var(--border2);
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: all 0.2s; position: relative; z-index: 1;
+      -webkit-appearance: none;
+    }
+    .mic-btn:active { transform: scale(0.93); }
+    .mic-btn.recording {
+      background: rgba(232,97,58,0.15); border-color: var(--accent);
+      box-shadow: 0 0 0 8px rgba(232,97,58,0.08), 0 0 0 16px rgba(232,97,58,0.04);
+    }
+    .mic-icon { width: 26px; height: 26px; stroke: var(--text); }
+    .mic-btn.recording .mic-icon { stroke: var(--accent); }
+    
+    .mic-status { font-size: 13px; color: var(--muted); font-weight: 300; text-align: center; }
+    .mic-status strong { color: var(--text); font-weight: 500; }
+    
+    /* ── Waveform ── */
+    .waveform {
+      display: flex; align-items: center; gap: 2.5px; height: 32px;
+      justify-content: center;
+    }
+    .wbar { width: 3px; border-radius: 2px; background: var(--border2); transition: height 0.08s ease; min-height: 3px; }
+    .wbar.on { background: var(--accent); }
+    
+    /* ── Transcript ── */
+    .transcript-area {
+      min-height: 56px; font-size: 15px; line-height: 1.65;
+      color: var(--text); position: relative;
+    }
+    .transcript-area.empty { color: var(--muted); font-weight: 300; font-style: italic; font-size: 14px; }
+    .cursor {
+      display: inline-block; width: 2px; height: 16px; background: var(--accent);
+      border-radius: 1px; margin-left: 2px; vertical-align: middle;
+      animation: blink 0.8s step-end infinite;
+    }
+    
+    /* ── Divider ── */
+    .arrow-divider {
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      color: var(--muted); font-size: 11px; font-family: var(--font-display);
+      font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase;
+    }
+    .arrow-divider::before, .arrow-divider::after {
+      content: ''; flex: 1; height: 0.5px; background: var(--border);
+    }
+    
+    /* ── Translation ── */
+    .translation-card {
+      background: linear-gradient(135deg, rgba(232,97,58,0.06) 0%, rgba(77,166,255,0.04) 100%);
+      border: 0.5px solid rgba(232,97,58,0.2);
+    }
+    .translation-text { font-size: 18px; line-height: 1.6; font-weight: 300; min-height: 52px; }
+    .translation-text.empty { font-size: 14px; color: var(--muted); font-style: italic; font-weight: 300; }
+    
+    .tts-row { display: flex; align-items: center; gap: 8px; margin-top: 14px; }
+    .tts-btn {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg3); border: 0.5px solid var(--border2);
+      border-radius: 20px; padding: 8px 14px; font-size: 13px;
+      color: var(--text); cursor: pointer; transition: all 0.15s;
+      font-family: var(--font-body); font-weight: 400;
+    }
+    .tts-btn:active { transform: scale(0.96); background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.3); color: var(--green); }
+    .tts-btn.playing { background: rgba(62,207,142,0.1); border-color: rgba(62,207,142,0.3); color: var(--green); }
+    .copy-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: transparent; border: 0.5px solid var(--border);
+      border-radius: 20px; padding: 8px 12px; font-size: 12px;
+      color: var(--muted); cursor: pointer; transition: all 0.15s;
+      font-family: var(--font-body); margin-left: auto;
+    }
+    .copy-btn:active { color: var(--text); border-color: var(--border2); }
+    
+    /* ── History ── */
+    .history-list { display: flex; flex-direction: column; gap: 8px; }
+    .history-item {
+      background: var(--bg3); border: 0.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px; cursor: pointer;
+      transition: border-color 0.15s;
+    }
+    .history-item:active { border-color: var(--border2); }
+    .history-time { font-size: 10px; color: var(--muted); font-family: var(--font-display); font-weight: 600; letter-spacing: 0.06em; margin-bottom: 4px; }
+    .history-darija { font-size: 13px; color: var(--muted); margin-bottom: 3px; direction: rtl; text-align: right; }
+    .history-fr { font-size: 14px; color: var(--text); font-weight: 400; line-height: 1.5; }
+    
+    /* ── Bottom nav ── */
+    .bottom-nav {
+      display: flex; background: var(--bg2);
+      border-top: 0.5px solid var(--border);
+      padding-bottom: env(safe-area-inset-bottom);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      flex: 1; display: flex; flex-direction: column; align-items: center; gap: 4px;
+      padding: 10px 4px; cursor: pointer; border: none; background: none;
+      color: var(--muted); font-family: var(--font-display); font-size: 10px; font-weight: 600;
+      letter-spacing: 0.05em; text-transform: uppercase; transition: color 0.15s;
+    }
+    .nav-btn.active { color: var(--accent); }
+    .nav-icon { width: 20px; height: 20px; }
+    
+    /* ── Screens ── */
+    .screen { display: none; flex-direction: column; flex: 1; overflow: hidden; }
+    .screen.active { display: flex; }
+    
+    /* ── Conference view ── */
+    .conf-header {
+      padding: 16px; border-bottom: 0.5px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      flex-shrink: 0;
+    }
+    .conf-title { font-family: var(--font-display); font-size: 16px; font-weight: 700; }
+    .conf-status {
+      display: flex; align-items: center; gap: 6px;
+      font-size: 11px; color: var(--green);
+    }
+    .conf-feed { flex: 1; overflow-y: auto; padding: 12px 16px; display: flex; flex-direction: column; gap: 8px; }
+    .seg-item {
+      background: var(--bg2); border: 0.5px solid var(--border);
+      border-radius: var(--r-sm); padding: 12px;
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { opacity:0; transform: translateY(8px); } to { opacity:1; transform: translateY(0); } }
+    .seg-time { font-size: 10px; color: var(--muted); font-family: var(--font-mono, monospace); margin-bottom: 5px; }
+    .seg-fr { font-size: 15px; color: var(--text); line-height: 1.55; margin-bottom: 4px; }
+    .seg-src { font-size: 12px; color: var(--muted); direction: rtl; text-align: right; }
+    .conf-start-btn {
+      margin: 16px; padding: 14px; background: var(--accent); color: white;
+      border: none; border-radius: var(--r-sm); font-family: var(--font-display);
+      font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: 0.02em;
+      transition: opacity 0.15s; flex-shrink: 0;
+    }
+    .conf-start-btn:active { opacity: 0.85; }
+    .conf-start-btn.stop { background: var(--bg3); color: var(--accent); border: 0.5px solid rgba(232,97,58,0.3); }
+    
+    /* ── Settings screen ── */
+    .settings-scroll { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 12px; }
+    .settings-section-title {
+      font-family: var(--font-display); font-size: 11px; font-weight: 700;
+      color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em;
+      padding: 0 4px; margin-top: 4px;
+    }
+    .setting-row {
+      background: var(--bg2); border: 0.5px solid var(--border); border-radius: var(--r-sm);
+      padding: 14px 16px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .setting-label { font-size: 14px; color: var(--text); }
+    .setting-sub { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .setting-value { font-size: 13px; color: var(--accent); font-family: var(--font-display); font-weight: 600; }
+    .toggle {
+      width: 42px; height: 24px; border-radius: 12px; background: var(--bg3);
+      border: 0.5px solid var(--border2); position: relative; cursor: pointer; transition: background 0.2s;
+    }
+    .toggle.on { background: var(--accent); border-color: var(--accent); }
+    .toggle::after {
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 16px; height: 16px; border-radius: 50%; background: white;
+      transition: transform 0.2s;
+    }
+    .toggle.on::after { transform: translateX(18px); }
+    
+    .server-input {
+      background: var(--bg3); border: 0.5px solid var(--border2); border-radius: var(--r-sm);
+      padding: 10px 12px; font-size: 14px; color: var(--text); width: 100%;
+      font-family: var(--font-body); margin-top: 8px; outline: none;
+    }
+    .server-input:focus { border-color: var(--accent); }
+    
+    .info-box {
+      background: rgba(77,166,255,0.06); border: 0.5px solid rgba(77,166,255,0.2);
+      border-radius: var(--r-sm); padding: 12px 14px;
+    }
+    .info-box p { font-size: 13px; color: rgba(77,166,255,0.85); line-height: 1.6; }
+    .info-box code { font-family: monospace; background: rgba(77,166,255,0.12); padding: 1px 5px; border-radius: 4px; font-size: 12px; }
+    
+    /* ── Loading spinner ── */
+    .spinner {
+      width: 16px; height: 16px; border: 2px solid var(--border2);
+      border-top-color: var(--accent); border-radius: 50%;
+      animation: spin 0.7s linear infinite; display: inline-block;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    /* ── Toast ── */
+    .toast {
+      position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%) translateY(20px);
+      background: var(--bg3); border: 0.5px solid var(--border2); border-radius: 20px;
+      padding: 8px 16px; font-size: 13px; color: var(--text);
+      opacity: 0; transition: all 0.25s; pointer-events: none; white-space: nowrap; z-index: 100;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    
+    /* ── Scrollbar ── */
+    ::-webkit-scrollbar { width: 3px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 2px; }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- ════ SCREEN: TRANSLATE ════ -->
+  <div class="screen active" id="screen-translate">
+    <div class="header">
+      <div class="header-top">
+        <div class="logo">Darija<span>→</span>FR</div>
+        <div class="live-badge"><div class="live-dot"></div>Live</div>
+      </div>
+      <p class="tagline">Traduction vocale en temps réel • Conférences & réunions</p>
+    </div>
+
+    <div class="pipeline">
+      <div class="chip active" id="chip-stt"><div class="chip-dot"></div>Whisper STT</div>
+      <span class="pipe-arrow">›</span>
+      <div class="chip" id="chip-llm"><div class="chip-dot"></div>Aya LLM</div>
+      <span class="pipe-arrow">›</span>
+      <div class="chip" id="chip-tts"><div class="chip-dot"></div>Coqui TTS</div>
+    </div>
+
+    <div class="main" id="main-scroll">
+      <!-- Mic -->
+      <div class="mic-card">
+        <div class="mic-ring">
+          <svg class="mic-ring-svg" viewBox="0 0 88 88">
+            <circle class="mic-ring-track" cx="44" cy="44" r="40"/>
+            <circle class="mic-ring-progress" id="ringProgress" cx="44" cy="44" r="40"/>
+          </svg>
+          <button class="mic-btn" id="micBtn" onclick="toggleRecord()" aria-label="Enregistrer">
+            <svg class="mic-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="9" y="2" width="6" height="13" rx="3"/>
+              <path d="M5 10a7 7 0 0 0 14 0M12 19v3M8 22h8"/>
+            </svg>
+          </button>
+        </div>
+        <div class="waveform" id="waveform"></div>
+        <p class="mic-status" id="micStatus">Appuyer pour parler en <strong>Darija</strong></p>
+      </div>
+
+      <!-- Transcription -->
+      <div class="card">
+        <p class="card-label">🎙 Transcription Darija</p>
+        <div class="transcript-area empty" id="transcriptBox">En attente de voix...</div>
+      </div>
+
+      <div class="arrow-divider">traduction LLM</div>
+
+      <!-- Translation -->
+      <div class="card translation-card">
+        <p class="card-label">🇫🇷 Traduction française</p>
+        <div class="translation-text empty" id="translationBox">La traduction apparaîtra ici</div>
+        <div class="tts-row" id="ttsRow" style="display:none">
+          <button class="tts-btn" id="ttsBtn" onclick="playTTS()">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            Écouter
+          </button>
+          <button class="copy-btn" onclick="copyTranslation()">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            Copier
+          </button>
+        </div>
+      </div>
+
+      <!-- History -->
+      <div id="historySection" style="display:none">
+        <p class="card-label" style="padding: 0 4px 8px;">Historique</p>
+        <div class="history-list" id="historyList"></div>
+      </div>
+
+      <div style="height: 16px;"></div>
+    </div>
+  </div>
+
+  <!-- ════ SCREEN: CONFERENCE ════ -->
+  <div class="screen" id="screen-conference">
+    <div class="conf-header">
+      <div class="conf-title">Mode Conférence</div>
+      <div class="conf-status" id="confStatus">
+        <div class="live-dot" style="background:var(--muted); animation:none;"></div>
+        <span id="confStatusText">Arrêté</span>
+      </div>
+    </div>
+    <div class="conf-feed" id="confFeed">
+      <div style="text-align:center; padding: 40px 20px; color: var(--muted); font-size:14px; font-weight:300;">
+        Lance la traduction continue pour les conférences et réunions.<br><br>
+        Chaque phrase sera traduite automatiquement.
+      </div>
+    </div>
+    <button class="conf-start-btn" id="confBtn" onclick="toggleConference()">
+      ▶ Démarrer la traduction
+    </button>
+  </div>
+
+  <!-- ════ SCREEN: SETTINGS ════ -->
+  <div class="screen" id="screen-settings">
+    <div class="settings-scroll">
+      <p class="settings-section-title">Serveur backend</p>
+      
+      <div class="card">
+        <p class="card-label">URL du serveur Python</p>
+        <input class="server-input" id="serverUrl" type="url" placeholder="http://192.168.1.X:8000" value="http://localhost:8000"/>
+        <p style="font-size:12px; color:var(--muted); margin-top:8px; line-height:1.6;">Adresse IP de ta machine sur le réseau local. Lance le backend Python sur le même WiFi.</p>
+      </div>
+
+      <p class="settings-section-title" style="margin-top:4px;">Modèles</p>
+
+      <div class="setting-row">
+        <div><p class="setting-label">Whisper STT</p><p class="setting-sub">Reconnaissance vocale</p></div>
+        <div class="setting-value" id="whisperModel">large-v3</div>
+      </div>
+      <div class="setting-row">
+        <div><p class="setting-label">LLM Traduction</p><p class="setting-sub">Dialecte → Français</p></div>
+        <div class="setting-value" id="llmModel">aya:8b</div>
+      </div>
+      <div class="setting-row">
+        <div><p class="setting-label">TTS Synthèse</p><p class="setting-sub">Voix française</p></div>
+        <div class="setting-value">Coqui FR</div>
+      </div>
+
+      <p class="settings-section-title" style="margin-top:4px;">Options</p>
+
+      <div class="setting-row">
+        <div><p class="setting-label">Lecture automatique</p><p class="setting-sub">TTS après chaque traduction</p></div>
+        <div class="toggle" id="autoTTS" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="setting-row">
+        <div><p class="setting-label">Afficher le Darija</p><p class="setting-sub">Texte original sous la traduction</p></div>
+        <div class="toggle on" id="showDarija" onclick="this.classList.toggle('on')"></div>
+      </div>
+
+      <p class="settings-section-title" style="margin-top:4px;">Installation rapide</p>
+
+      <div class="info-box">
+        <p>Sur ta machine, installe et lance le backend :<br><br>
+        <code>pip install -r requirements.txt</code><br>
+        <code>python server.py</code><br><br>
+        Puis entre l'IP locale de ta machine ci-dessus (ex: <code>192.168.1.42:8000</code>). Téléphone et PC doivent être sur le même WiFi.</p>
+      </div>
+
+      <div style="height: 8px;"></div>
+    </div>
+  </div>
+
+  <!-- ════ Bottom nav ════ -->
+  <nav class="bottom-nav">
+    <button class="nav-btn active" id="nav-translate" onclick="switchScreen('translate')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M5 8l6 6M4 14l6-6 2-3M2 5h7M7 2v3M22 22l-5-10-5 10M14 18h6"/>
+      </svg>
+      Traduire
+    </button>
+    <button class="nav-btn" id="nav-conference" onclick="switchScreen('conference')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      Conférence
+    </button>
+    <button class="nav-btn" id="nav-settings" onclick="switchScreen('settings')">
+      <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+        <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+      </svg>
+      Réglages
+    </button>
+  </nav>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ── Config ──
+let SERVER = localStorage.getItem('serverUrl') || 'http://localhost:8000';
+let isRecording = false;
+let mediaRecorder = null;
+let audioChunks = [];
+let waveInterval = null;
+let bars = [];
+let history = JSON.parse(localStorage.getItem('history') || '[]');
+let confInterval = null;
+let isConferencing = false;
+let confElapsed = 0;
+
+// ── Init waveform ──
+function initWaveform() {
+  const wf = document.getElementById('waveform');
+  for (let i = 0; i < 28; i++) {
+    const b = document.createElement('div');
+    b.className = 'wbar';
+    b.style.height = '3px';
+    wf.appendChild(b);
+    bars.push(b);
+  }
+}
+
+// ── Navigate ──
+function switchScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('screen-' + name).classList.add('active');
+  document.getElementById('nav-' + name).classList.add('active');
+}
+
+// ── Toast ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Pipeline highlight ──
+function setPipeline(step) {
+  ['stt','llm','tts'].forEach((s,i) => {
+    document.getElementById('chip-' + s).classList.toggle('active', i <= step);
+  });
+}
+
+// ── Mic recording ──
+async function toggleRecord() {
+  if (isRecording) {
+    stopRecord();
+  } else {
+    await startRecord();
+  }
+}
+
+async function startRecord() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+    mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+    audioChunks = [];
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = processAudio;
+    mediaRecorder.start(200);
+
+    isRecording = true;
+    document.getElementById('micBtn').classList.add('recording');
+    document.getElementById('micStatus').innerHTML = 'Parle maintenant... <strong>Appuie pour arrêter</strong>';
+    document.getElementById('transcriptBox').className = 'transcript-area empty';
+    document.getElementById('transcriptBox').innerHTML = '';
+    document.getElementById('translationBox').className = 'translation-text empty';
+    document.getElementById('translationBox').textContent = 'En cours...';
+    document.getElementById('ttsRow').style.display = 'none';
+    setPipeline(0);
+    startWave();
+  } catch(e) {
+    showToast('Micro non disponible — vérifie les permissions');
+  }
+}
+
+function stopRecord() {
+  if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+    mediaRecorder.stop();
+    mediaRecorder.stream.getTracks().forEach(t => t.stop());
+  }
+  isRecording = false;
+  document.getElementById('micBtn').classList.remove('recording');
+  document.getElementById('micStatus').innerHTML = 'Traitement en cours...';
+  stopWave();
+}
+
+async function processAudio() {
+  const blob = new Blob(audioChunks, { type: 'audio/webm' });
+  const formData = new FormData();
+  formData.append('audio', blob, 'recording.webm');
+
+  const server = document.getElementById('serverUrl').value || SERVER;
+
+  // Show spinner in transcript
+  document.getElementById('transcriptBox').className = 'transcript-area';
+  document.getElementById('transcriptBox').innerHTML = '<span class="spinner"></span>';
+  setPipeline(0);
+
+  try {
+    // Step 1: STT
+    const sttRes = await fetch(server + '/stt', { method: 'POST', body: formData });
+    const sttData = await sttRes.json();
+    const darija = sttData.text || '';
+    
+    typeText('transcriptBox', darija, 'transcript-area');
+    setPipeline(1);
+
+    // Step 2: Translate
+    const transRes = await fetch(server + '/translate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: darija })
+    });
+    const transData = await transRes.json();
+    const french = transData.translation || '';
+
+    typeText('translationBox', french, 'translation-text');
+    setPipeline(2);
+    document.getElementById('ttsRow').style.display = 'flex';
+    document.getElementById('micStatus').innerHTML = 'Appuyer pour parler en <strong>Darija</strong>';
+
+    // Auto TTS
+    if (document.getElementById('autoTTS').classList.contains('on')) {
+      playTTS(french, server);
+    }
+
+    // Save history
+    addHistory(darija, french);
+
+  } catch(e) {
+    // Demo mode — simulate if no server
+    simulateDemo();
+  }
+}
+
+// ── Demo fallback ──
+const demoExamples = [
+  { d: "مرحبا، اليوم غانتكلمو على مشاريع التنمية فالمغرب وكيفاش نقدرو نستثمرو فالقطاع الرقمي", f: "Bonjour, aujourd'hui nous allons parler des projets de développement au Maroc et comment investir dans le secteur numérique." },
+  { d: "الاقتصاد المغربي عرف تطور كبير فالسنين الأخيرة خصوصا فقطاع السياحة والصناعة", f: "L'économie marocaine a connu un développement important ces dernières années, notamment dans les secteurs du tourisme et de l'industrie." },
+  { d: "كنتكلمو على مشكلة التغير المناخي وتأثيرو على الفلاحة فالمناطق الجافة ديال المغرب", f: "Nous parlons du problème du changement climatique et de son impact sur l'agriculture dans les zones arides du Maroc." },
+  { d: "بغينا ندردشو على الفرص ديال التعليم والتكوين المهني للشباب المغربي", f: "Nous souhaitons discuter des opportunités d'éducation et de formation professionnelle pour les jeunes Marocains." },
+];
+let demoIdx = 0;
+
+function simulateDemo() {
+  const ex = demoExamples[demoIdx % demoExamples.length];
+  demoIdx++;
+  typeText('transcriptBox', ex.d, 'transcript-area');
+  setPipeline(1);
+  setTimeout(() => {
+    typeText('translationBox', ex.f, 'translation-text');
+    setPipeline(2);
+    document.getElementById('ttsRow').style.display = 'flex';
+    document.getElementById('micStatus').innerHTML = 'Appuyer pour parler en <strong>Darija</strong>';
+    addHistory(ex.d, ex.f);
+  }, 800);
+}
+
+// ── Typewriter effect ──
+function typeText(elId, text, className) {
+  const el = document.getElementById(elId);
+  el.className = className;
+  el.innerHTML = '';
+  let i = 0;
+  const cur = document.createElement('span');
+  cur.className = 'cursor';
+  el.appendChild(cur);
+  const interval = setInterval(() => {
+    if (i < text.length) {
+      el.insertBefore(document.createTextNode(text[i]), cur);
+      i++;
+    } else {
+      clearInterval(interval);
+      cur.remove();
+    }
+  }, 16);
+}
+
+// ── TTS ──
+async function playTTS(text, server) {
+  const btn = document.getElementById('ttsBtn');
+  const fr = text || document.getElementById('translationBox').textContent;
+  const srv = server || document.getElementById('serverUrl').value || SERVER;
+  
+  btn.classList.add('playing');
+  btn.innerHTML = '<span class="spinner"></span> Lecture...';
+
+  try {
+    const res = await fetch(srv + '/tts', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: fr })
+    });
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const audio = new Audio(url);
+    audio.onended = () => resetTTSBtn();
+    audio.play();
+  } catch(e) {
+    // Fallback: browser TTS
+    if ('speechSynthesis' in window) {
+      const utt = new SpeechSynthesisUtterance(fr);
+      utt.lang = 'fr-FR';
+      utt.onend = resetTTSBtn;
+      speechSynthesis.speak(utt);
+    } else {
+      showToast('TTS non disponible en démo');
+      resetTTSBtn();
+    }
+  }
+}
+
+function resetTTSBtn() {
+  const btn = document.getElementById('ttsBtn');
+  btn.classList.remove('playing');
+  btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="5 3 19 12 5 21 5 3"/></svg> Écouter';
+}
+
+// ── Copy ──
+function copyTranslation() {
+  const text = document.getElementById('translationBox').textContent;
+  navigator.clipboard.writeText(text).then(() => showToast('Copié dans le presse-papier'));
+}
+
+// ── Waveform ──
+function startWave() {
+  waveInterval = setInterval(() => {
+    bars.forEach(b => {
+      const h = 3 + Math.random() * 26;
+      b.style.height = h + 'px';
+      b.classList.add('on');
+    });
+    const offset = 251 - (251 * 0.5);
+    document.getElementById('ringProgress').style.strokeDashoffset = offset;
+  }, 90);
+}
+
+function stopWave() {
+  if (waveInterval) { clearInterval(waveInterval); waveInterval = null; }
+  bars.forEach(b => { b.style.height = '3px'; b.classList.remove('on'); });
+  document.getElementById('ringProgress').style.strokeDashoffset = 251;
+}
+
+// ── History ──
+function addHistory(darija, fr) {
+  const now = new Date();
+  const time = now.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  history.unshift({ time, darija, fr });
+  if (history.length > 20) history.pop();
+  localStorage.setItem('history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const sec = document.getElementById('historySection');
+  const list = document.getElementById('historyList');
+  if (history.length === 0) { sec.style.display = 'none'; return; }
+  sec.style.display = 'block';
+  list.innerHTML = history.slice(0, 5).map(h => `
+    <div class="history-item" onclick="restoreHistory('${h.darija.replace(/'/g,"\\'")}','${h.fr.replace(/'/g,"\\'")}')">
+      <div class="history-time">${h.time}</div>
+      <div class="history-darija">${h.darija.slice(0, 60)}${h.darija.length > 60 ? '...' : ''}</div>
+      <div class="history-fr">${h.fr.slice(0, 80)}${h.fr.length > 80 ? '...' : ''}</div>
+    </div>
+  `).join('');
+}
+
+function restoreHistory(darija, fr) {
+  typeText('transcriptBox', darija, 'transcript-area');
+  typeText('translationBox', fr, 'translation-text');
+  document.getElementById('ttsRow').style.display = 'flex';
+  setPipeline(2);
+  switchScreen('translate');
+  document.getElementById('main-scroll').scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── Conference mode ──
+const confSamples = [
+  { d: "مرحبا بكم فهاد الكونفرانس الدولي ديال التكنولوجيا والابتكار", f: "Bienvenue à cette conférence internationale sur la technologie et l'innovation." },
+  { d: "اليوم غانتكلمو على مستقبل الذكاء الاصطناعي فالمغرب وإفريقيا", f: "Aujourd'hui nous allons parler de l'avenir de l'intelligence artificielle au Maroc et en Afrique." },
+  { d: "الحكومة دارت استثمارات كبيرة فالبنية التحتية الرقمية", f: "Le gouvernement a réalisé d'importants investissements dans l'infrastructure numérique." },
+  { d: "عندنا فرص كبيرة باش نبنيو اقتصاد رقمي قوي", f: "Nous avons de grandes opportunités pour construire une économie numérique solide." },
+  { d: "الشباب المغربي عندو مهارات عالية فمجال التكنولوجيا والبرمجة", f: "Les jeunes Marocains possèdent des compétences élevées dans les domaines de la technologie et de la programmation." },
+  { d: "المنظومة الابتكارية فالمغرب كتتطور بشكل ملحوظ فالسنين الأخيرة", f: "L'écosystème d'innovation au Maroc se développe de manière remarquable ces dernières années." },
+];
+let confSampleIdx = 0;
+
+function toggleConference() {
+  if (isConferencing) {
+    stopConference();
+  } else {
+    startConference();
+  }
+}
+
+function startConference() {
+  isConferencing = true;
+  confElapsed = 0;
+  const btn = document.getElementById('confBtn');
+  const dot = document.querySelector('#confStatus .live-dot');
+  btn.textContent = '■ Arrêter la traduction';
+  btn.classList.add('stop');
+  dot.style.background = 'var(--green)';
+  dot.style.animation = 'blink 1.4s ease infinite';
+  document.getElementById('confStatusText').textContent = 'En direct';
+  document.getElementById('confFeed').innerHTML = '';
+
+  confInterval = setInterval(() => {
+    confElapsed += 4;
+    const ex = confSamples[confSampleIdx % confSamples.length];
+    confSampleIdx++;
+    const mins = String(Math.floor(confElapsed / 60)).padStart(2, '0');
+    const secs = String(confElapsed % 60).padStart(2, '0');
+    
+    const div = document.createElement('div');
+    div.className = 'seg-item';
+    div.innerHTML = `
+      <div class="seg-time">00:${mins}:${secs}</div>
+      <div class="seg-fr">${ex.f}</div>
+      <div class="seg-src">${ex.d}</div>
+    `;
+    document.getElementById('confFeed').appendChild(div);
+    div.scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }, 4000);
+}
+
+function stopConference() {
+  isConferencing = false;
+  clearInterval(confInterval);
+  const btn = document.getElementById('confBtn');
+  const dot = document.querySelector('#confStatus .live-dot');
+  btn.textContent = '▶ Démarrer la traduction';
+  btn.classList.remove('stop');
+  dot.style.background = 'var(--muted)';
+  dot.style.animation = 'none';
+  document.getElementById('confStatusText').textContent = 'Arrêté';
+}
+
+// ── Boot ──
+initWaveform();
+renderHistory();
+
+// Save server URL on change
+document.getElementById('serverUrl').addEventListener('change', function() {
+  localStorage.setItem('serverUrl', this.value);
+});
+</script>
+</body>
+</html>
